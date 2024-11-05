@@ -1,0 +1,26 @@
+{
+  "name": "pharmazone-server",
+  "version": "1.0.0",
+  "description": "This is the server dictionary to main project Pharmazone",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "npx tsc",
+    "start": "node ./dist/index.js"
+  },
+  "author": "Bassel Abo Khabsa",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-validator": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.16",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
