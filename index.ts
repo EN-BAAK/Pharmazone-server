@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: "./config/.env" });
 
 import sequelizeDB from "./src/models";
+import { errorMiddleWare } from "./src/middleware/errorMiddleware";
 
 declare global {
   namespace Express {
@@ -27,6 +28,8 @@ app.use(express.urlencoded({ extended: true }));
 //     credentials: true,
 //   })
 // );
+
+app.use(errorMiddleWare);
 
 sequelizeDB.sync().then(() => {
   app.listen(port as number, () => {
