@@ -1,20 +1,20 @@
 import { DataTypes, Model } from "sequelize";
 import bcrypt from "bcryptjs";
 import sequelize from "./index";
-import { Company as CompanyType, Role as RoleType } from "../misc/types";
+import { Company as CompanyType } from "../misc/types";
 import { decrypt, encrypt } from "src/misc/hashing";
 
 class Company extends Model<CompanyType> implements CompanyType {
-  public id!: number;
+  public id?: number;
   public name!: string;
   public email!: string;
-  public phone!: string;
+  public phone?: string | null;
   public password!: string;
   public rate: number = 0;
-  public description: string = "Hi I use Pharmazone";
-  public role!: RoleType;
-  public debtor: string = encrypt("0");
-  public credit: string = encrypt("0");
+  public description?: string = "Hi I use Pharmazone";
+  public role!: string;
+  public debtor?: string = encrypt("0");
+  public credit?: string = encrypt("0");
   public avatar?: string;
 }
 
@@ -36,7 +36,7 @@ Company.init(
     },
     phone: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     password: {
       type: DataTypes.STRING,
@@ -96,7 +96,7 @@ Company.init(
     hooks: {
       beforeCreate: async (user) => {
         if (user.password) {
-          const saltRounds = parseInt(process.env.SALT || "10", 10);
+          const saltRounds = parseInt(process.env.SALT!);
           user.password = await bcrypt.hash(user.password, saltRounds);
         }
       },

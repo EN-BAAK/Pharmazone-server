@@ -1,49 +1,49 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "./index";
-import { NewCompany as NewCompanyType, Role as RoleType } from "../misc/types";
+import { CompanyAuth as CompanyAuthType } from "../misc/types";
 
-class NewCompany extends Model<NewCompanyType> implements NewCompanyType {
-  public id!: number;
+class CompanyAuth extends Model<CompanyAuthType> implements CompanyAuthType {
+  public id?: number;
   public email!: string;
   public verificationCode!: string;
   public password!: string;
   public name!: string;
-  public phone!: string;
-  public role!: RoleType;
-  public requestType!: "register" | "verify";
+  public phone?: string | null;
+  public role!: string;
+  public requestType!: string;
 }
 
-NewCompany.init(
+CompanyAuth.init(
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
     },
-    verificationCode: {
+    phone: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     password: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    phone: {
       type: DataTypes.STRING,
       allowNull: true,
     },
     role: {
       type: DataTypes.ENUM("fac", "pha"),
       allowNull: true,
+    },
+    verificationCode: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     requestType: {
       type: DataTypes.ENUM("register", "verify"),
@@ -52,10 +52,10 @@ NewCompany.init(
   },
   {
     sequelize,
-    modelName: "NewCompany",
-    tableName: "NewCompany",
+    modelName: "CompanyAuth",
+    tableName: "CompanyAuth",
     timestamps: true,
   }
 );
 
-export default NewCompany;
+export default CompanyAuth;

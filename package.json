@@ -2,17 +2,15 @@
   "name": "pharmazone-server",
   "version": "1.0.0",
   "description": "This is the server dictionary to main project Pharmazone",
-  "main": "index.ts",
+  "main": "pharmazoneServer.ts",
   "scripts": {
     "dev": "nodemon",
     "build": "npx tsc",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/pharmazoneServer.js"
   },
   "author": "Bassel Abo Khabsa",
   "license": "ISC",
   "dependencies": {
-    "@types/jsonwebtoken": "^9.0.7",
-    "@types/sequelize": "^4.28.20",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -22,17 +20,20 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.4",
     "nodemailer": "^6.9.16",
-    "nodemon": "^3.1.7",
-    "sequelize": "^6.37.5",
-    "sequelize-cli": "^6.6.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "sequelize": "^6.37.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
-    "@types/node": "^22.9.0"
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.9.0",
+    "@types/nodemailer": "^6.4.17",
+    "@types/sequelize": "^4.28.20",
+    "nodemon": "^3.1.9",
+    "sequelize-cli": "^6.6.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
   }
 }

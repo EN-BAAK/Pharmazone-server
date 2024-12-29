@@ -104,7 +104,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "index.ts",
+    "pharmazoneServer.ts",
     "config/**/*.ts"
   ],
   "exclude": [

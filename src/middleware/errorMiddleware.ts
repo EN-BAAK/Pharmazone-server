@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response, ErrorRequestHandler } from "express";
+import { Result, ValidationError } from "express-validator";
 
 class ErrorHandler extends Error {
   statusCode: number;
@@ -58,6 +59,23 @@ export const catchAsyncErrors = (
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(func(req, res, next)).catch(next);
   };
+};
+
+export const handelValidationErrors = (
+  results: Result<ValidationError>,
+  next: NextFunction
+) => {
+  if (!results.isEmpty()) {
+    const errors = results
+      .array()
+      .map((error) => error.msg)
+      .slice(0, 3)
+      .join(", ");
+
+    return next(new ErrorHandler(errors, 400));
+  }
+
+  next();
 };
 
 export default ErrorHandler;

@@ -1,26 +1,24 @@
-export type Role = "fac" | "pha";
-
 export type Company = {
-  id: number;
+  id?: number;
   name: string;
   email: string;
-  phone: string;
+  phone?: string | null;
   password: string;
-  rate: number;
-  description: string;
-  role: Role;
-  debtor: string;
-  credit: string;
+  rate?: number;
+  description?: string;
+  role: string;
+  debtor?: string;
+  credit?: string;
   avatar?: string;
 };
 
-export type NewCompany = {
-  id: number;
-  verificationCode: string;
-  email: string;
-  password: string;
+export type CompanyAuth = {
+  id?: number;
   name: string;
-  phone: string;
-  role: Role;
-  requestType: "register" | "verify";
+  email: string;
+  phone?: string | null;
+  password: string;
+  role: string;
+  verificationCode: string;
+  requestType: string;
 };
