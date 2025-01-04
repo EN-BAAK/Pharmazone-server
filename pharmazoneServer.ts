@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 dotenv.config({ path: "./config/.env" });
 
+import authRouter from "./src/router/auth";
 import sequelizeDB from "./src/models";
 import { errorMiddleWare } from "./src/middleware/errorMiddleware";
 
@@ -20,6 +21,8 @@ const port: number = parseInt(process.env.PORT as string, 10) || 4001;
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/api/auth", authRouter);
 
 app.use(errorMiddleWare);
 

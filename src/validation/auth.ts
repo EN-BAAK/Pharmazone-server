@@ -1,13 +1,12 @@
 import { body, CustomValidator } from "express-validator";
-import { validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
 import ErrorHandler, {
   catchAsyncErrors,
-  handelValidationErrors,
-} from "src/middleware/errorMiddleware";
+  handleValidationMiddleware,
+} from "../middleware/errorMiddleware";
 
-const validatePhoneIfPasswordExists: CustomValidator = ({ req }) => {
-  if (req.body.password) {
+const validatePhoneIfPasswordExists: CustomValidator = (value, { req }) => {
+  if (req.body.phone) {
     return body("phone")
       .trim()
       .escape()
@@ -24,10 +23,7 @@ export const register = [
     .escape()
     .isLength({ min: 1 })
     .withMessage("Name is required"),
-  body("email")
-    .isEmail()
-    .normalizeEmail()
-    .withMessage("Valid email is required"),
+  body("email").isEmail().normalizeEmail().withMessage("email is required"),
   body("password")
     .trim()
     .isLength({ min: 6 })
@@ -40,14 +36,12 @@ export const register = [
     .withMessage("Role is not allowed"),
 
   catchAsyncErrors(async (req: Request, res: Response, next: NextFunction) => {
-    const { companyName, email, password, phone, role } = req.body;
+    const { companyName, email, password, role } = req.body;
 
-    if (!companyName || !email || !password || !phone || !role)
+    if (!companyName && !email && !password && !role)
       return next(new ErrorHandler("Please provide all details!", 400));
 
-    const results = validationResult(req);
-    handelValidationErrors(results, next);
-    next();
+    return handleValidationMiddleware(req, next);
   }),
 ];
 
@@ -57,10 +51,7 @@ export const verifyEmail = [
     .escape()
     .isLength({ min: 4, max: 4 })
     .withMessage("Valid verification code is required"),
-  body("email")
-    .isEmail()
-    .normalizeEmail()
-    .withMessage("Valid email is required"),
+  body("email").isEmail().normalizeEmail().withMessage("email is required"),
   body("role")
     .trim()
     .escape()
@@ -73,17 +64,12 @@ export const verifyEmail = [
     if (!requestType || requestType !== "register")
       return next(new ErrorHandler("Internal server error", 500));
 
-    const results = validationResult(req);
-    handelValidationErrors(results, next);
-    next();
+    return handleValidationMiddleware(req, next);
   },
 ];
 
 export const login = [
-  body("email")
-    .isEmail()
-    .normalizeEmail()
-    .withMessage("Valid email is required"),
+  body("email").isEmail().normalizeEmail().withMessage("email is required"),
   body("password")
     .trim()
     .isLength({ min: 6 })
@@ -97,11 +83,9 @@ export const login = [
   (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
-    if (!email || !password)
+    if (!email && !password)
       return next(new ErrorHandler("Please provide all details!", 400));
 
-    const results = validationResult(req);
-    handelValidationErrors(results, next);
-    next();
+    return handleValidationMiddleware(req, next);
   },
 ];

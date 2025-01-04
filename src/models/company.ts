@@ -2,7 +2,7 @@ import { DataTypes, Model } from "sequelize";
 import bcrypt from "bcryptjs";
 import sequelize from "./index";
 import { Company as CompanyType } from "../misc/types";
-import { decrypt, encrypt } from "src/misc/hashing";
+import { decrypt, encrypt } from "../misc/hashing";
 
 class Company extends Model<CompanyType> implements CompanyType {
   public id?: number;
@@ -90,9 +90,6 @@ Company.init(
     modelName: "Company",
     tableName: "Company",
     timestamps: true,
-    defaultScope: {
-      attributes: { exclude: ["password"] },
-    },
     hooks: {
       beforeCreate: async (user) => {
         if (user.password) {

@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import Company from "src/models/company";
-import CompanyAuth from "src/models/companyAuth";
+import Company from "../models/company";
+import CompanyAuth from "../models/companyAuth";
 import ErrorHandler, { catchAsyncErrors } from "../middleware/errorMiddleware";
-import { comparePassword, generateVerificationCode } from "src/misc/helpers";
-import { generateToken } from "src/utils/jwToken";
-import { sendVerificationEmail } from "src/misc/mailer";
+import { comparePassword, generateVerificationCode } from "../misc/helpers";
+import { generateToken } from "../utils/jwToken";
+import { sendVerificationEmail } from "../misc/mailer";
 
 export const register = catchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -34,7 +34,6 @@ export const register = catchAsyncErrors(
     } else {
       await CompanyAuth.create(newCompanyAuth);
     }
-
     await sendVerificationEmail(email, generatedVerificationCode);
 
     res.status(201).json({
@@ -93,7 +92,6 @@ export const verifyEmail = catchAsyncErrors(
 export const login = catchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, password, role } = req.body;
-
     const company = await Company.findOne({ where: { email } });
 
     if (!company)
@@ -101,15 +99,13 @@ export const login = catchAsyncErrors(
 
     if (role !== company.role)
       return next(new ErrorHandler("Internal server error", 500));
-
+    console.log(company, company.password, typeof company.password);
     const correctPassword = await comparePassword(password, company.password);
 
     if (!correctPassword) return next(new ErrorHandler("Wrong password", 400));
 
-    const { password: _, ...companyWithoutPassword } = company;
-
     generateToken(
-      companyWithoutPassword,
+      company,
       "Company manager logged in successfully",
       200,
       res,
@@ -129,7 +125,6 @@ export const verifyToken = catchAsyncErrors(
   async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
-      userId: req.userId,
     });
   }
 );

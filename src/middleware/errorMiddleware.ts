@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, ErrorRequestHandler } from "express";
-import { Result, ValidationError } from "express-validator";
+import { Result, ValidationError, validationResult } from "express-validator";
 
 class ErrorHandler extends Error {
   statusCode: number;
@@ -61,10 +61,12 @@ export const catchAsyncErrors = (
   };
 };
 
-export const handelValidationErrors = (
-  results: Result<ValidationError>,
+export const handleValidationMiddleware = (
+  req: Request,
   next: NextFunction
-) => {
+): void => {
+  const results = validationResult(req);
+
   if (!results.isEmpty()) {
     const errors = results
       .array()

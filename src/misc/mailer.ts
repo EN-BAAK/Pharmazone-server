@@ -42,13 +42,17 @@ const html = (message: string, code: string) => `
 `;
 
 export const sendVerificationEmail = async (email: string, code: string) => {
-  await transporter.sendMail({
-    from: "Pharmazone Manager",
-    to: email,
-    subject: "Email Verification",
-    html: html(
-      "Thank you for registering with Pharmazone. Please use the following verification code to complete your email verification:",
-      code
-    ),
-  });
+  try {
+    await transporter.sendMail({
+      from: "Pharmazone Manager",
+      to: email,
+      subject: "Email Verification",
+      html: html(
+        "Thank you for registering with Pharmazone. Please use the following verification code to complete your email verification:",
+        code
+      ),
+    });
+  } catch (err) {
+    console.log("err", err);
+  }
 };

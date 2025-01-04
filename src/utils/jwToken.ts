@@ -1,7 +1,8 @@
 import { NextFunction, Response } from "express";
-import { Company as CompanyType } from "src/misc/types";
+import { Company as CompanyType } from "../misc/types";
 import jwt from "jsonwebtoken";
-import ErrorHandler from "src/middleware/errorMiddleware";
+import ErrorHandler from "../middleware/errorMiddleware";
+import { getSafeCompany } from "../misc/helpers";
 
 const generateJsonWebToken = (id: number) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY as string, {
@@ -10,7 +11,7 @@ const generateJsonWebToken = (id: number) => {
 };
 
 export const generateToken = (
-  company: Omit<CompanyType, "password">,
+  company: CompanyType,
   message: string,
   statusCode: number,
   res: Response,
@@ -19,10 +20,12 @@ export const generateToken = (
   if (!company.id) throw next(new ErrorHandler("Invalid data", 400));
   const token = generateJsonWebToken(company.id);
 
+  const safeCompany = getSafeCompany(company);
+
   res
     .status(statusCode)
     .set("Authorization", `Bearer ${token}`)
-    .json({ success: true, message, company, token });
+    .json({ success: true, message, company: safeCompany, token });
 };
 
 export const verifyToken = (token: string) => {
