@@ -74,11 +74,6 @@ export const login = [
     .trim()
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters long"),
-  body("role")
-    .trim()
-    .escape()
-    .isIn(["fac", "pha"])
-    .withMessage("Role is not allowed"),
 
   (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;

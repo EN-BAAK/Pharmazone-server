@@ -91,15 +91,12 @@ export const verifyEmail = catchAsyncErrors(
 
 export const login = catchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body;
     const company = await Company.findOne({ where: { email } });
 
     if (!company)
       return next(new ErrorHandler("This account is not exist", 404));
 
-    if (role !== company.role)
-      return next(new ErrorHandler("Internal server error", 500));
-    console.log(company, company.password, typeof company.password);
     const correctPassword = await comparePassword(password, company.password);
 
     if (!correctPassword) return next(new ErrorHandler("Wrong password", 400));
