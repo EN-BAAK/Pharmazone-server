@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { Company as CompanyType } from "../misc/types";
+import { Companies as CompaniesType } from "../misc/types";
 import jwt from "jsonwebtoken";
 import ErrorHandler from "../middleware/errorMiddleware";
 import { getSafeCompany } from "../misc/helpers";
@@ -11,7 +11,7 @@ const generateJsonWebToken = (id: number) => {
 };
 
 export const generateToken = (
-  company: CompanyType,
+  company: CompaniesType,
   message: string,
   statusCode: number,
   res: Response,

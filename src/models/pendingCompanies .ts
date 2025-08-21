@@ -1,8 +1,12 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "./index";
-import { CompanyAuth as CompanyAuthType } from "../misc/types";
+import { PendingCompanies  as PendingCompaniesType } from "../misc/types";
+import bcrypt from "bcryptjs";
 
-class CompanyAuth extends Model<CompanyAuthType> implements CompanyAuthType {
+class PendingCompanies
+  extends Model<PendingCompaniesType>
+  implements PendingCompaniesType
+{
   public id?: number;
   public email!: string;
   public verificationCode!: string;
@@ -13,7 +17,7 @@ class CompanyAuth extends Model<CompanyAuthType> implements CompanyAuthType {
   public requestType!: string;
 }
 
-CompanyAuth.init(
+PendingCompanies.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -52,10 +56,30 @@ CompanyAuth.init(
   },
   {
     sequelize,
-    modelName: "CompanyAuth",
-    tableName: "CompanyAuth",
-    timestamps: true,
+    modelName: "PendingCompanies",
+    tableName: "PendingCompanies",
+    timestamps: false,
+    hooks: {
+      beforeCreate: async (user) => {
+        if (user.verificationCode) {
+          const saltRounds = parseInt(process.env.SALT!);
+          user.verificationCode = await bcrypt.hash(
+            user.verificationCode,
+            saltRounds
+          );
+        }
+      },
+      beforeUpdate: async (user) => {
+        if (user.changed("verificationCode")) {
+          const saltRounds = parseInt(process.env.SALT!, 10);
+          user.verificationCode = await bcrypt.hash(
+            user.verificationCode,
+            saltRounds
+          );
+        }
+      },
+    },
   }
 );
 
-export default CompanyAuth;
+export default PendingCompanies;

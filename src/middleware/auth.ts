@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import ErrorHandler, { catchAsyncErrors } from "./errorMiddleware";
+import ErrorHandler, { catchAsyncErrors } from "../middleware/errorMiddleware";
 import { verifyToken } from "../utils/jwToken";
-import Company from "../models/company";
+import Companies from "../models/companies";
 
 export const isAuthenticated = catchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -17,7 +17,7 @@ export const isAuthenticated = catchAsyncErrors(
 
     req.userId = decoded.id;
 
-    const company = await Company.findByPk(req.userId);
+    const company = await Companies.findByPk(req.userId);
 
     if (!company) return next(new ErrorHandler("Internal server error", 500));
 

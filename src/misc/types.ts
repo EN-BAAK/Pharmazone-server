@@ -1,4 +1,4 @@
-export type Company = {
+export type Companies = {
   id?: number;
   name: string;
   email: string;
@@ -12,7 +12,7 @@ export type Company = {
   avatar?: string;
 };
 
-export type CompanyAuth = {
+export type PendingCompanies  = {
   id?: number;
   name: string;
   email: string;

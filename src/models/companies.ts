@@ -1,10 +1,10 @@
 import { DataTypes, Model } from "sequelize";
 import bcrypt from "bcryptjs";
 import sequelize from "./index";
-import { Company as CompanyType } from "../misc/types";
+import { Companies as CompaniesType } from "../misc/types";
 import { decrypt, encrypt } from "../misc/hashing";
 
-class Company extends Model<CompanyType> implements CompanyType {
+class Companies extends Model<CompaniesType> implements CompaniesType {
   public id?: number;
   public name!: string;
   public email!: string;
@@ -18,7 +18,7 @@ class Company extends Model<CompanyType> implements CompanyType {
   public avatar?: string;
 }
 
-Company.init(
+Companies.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -87,8 +87,8 @@ Company.init(
   },
   {
     sequelize,
-    modelName: "Company",
-    tableName: "Company",
+    modelName: "Companies",
+    tableName: "Companies",
     timestamps: true,
     hooks: {
       beforeCreate: async (user) => {
@@ -99,7 +99,7 @@ Company.init(
       },
       beforeUpdate: async (user) => {
         if (user.changed("password")) {
-          const saltRounds = parseInt(process.env.SALT || "10", 10);
+          const saltRounds = parseInt(process.env.SALT!, 10);
           user.password = await bcrypt.hash(user.password, saltRounds);
         }
       },
@@ -113,4 +113,4 @@ Company.init(
   }
 );
 
-export default Company;
+export default Companies;

@@ -1,19 +1,11 @@
-import bcrypt from "bcryptjs";
-import { Company as CompanyType } from "./types";
+import { Companies as CompaniesType } from "../misc/types";
 
 export const generateVerificationCode = (): string => {
   const code = Math.floor(1000 + Math.random() * 9000);
   return String(code);
 };
 
-export const comparePassword = async (
-  enteredPassword: string,
-  password: string
-): Promise<boolean> => {
-  return await bcrypt.compare(enteredPassword, password);
-};
-
-export const getSafeCompany = (company: CompanyType) => {
+export const getSafeCompany = (company: CompaniesType) => {
   return {
     name: company.name,
     email: company.email,

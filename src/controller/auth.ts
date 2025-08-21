@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import Company from "../models/company";
-import CompanyAuth from "../models/companyAuth";
+import Companies from "../models/companies";
+import PendingCompanies from "../models/pendingCompanies ";
 import ErrorHandler, { catchAsyncErrors } from "../middleware/errorMiddleware";
-import { comparePassword, generateVerificationCode } from "../misc/helpers";
+import { generateVerificationCode } from "../misc/helpers";
+import { compareHashedData, encrypt, encryptData } from "../misc/hashing";
 import { generateToken } from "../utils/jwToken";
 import { sendVerificationEmail } from "../misc/mailer";
 
@@ -10,30 +11,29 @@ export const register = catchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, email, password, phone, role } = req.body;
 
-    const company = await Company.findOne({ where: { email } });
-
-    if (company)
-      return next(new ErrorHandler("The email is already exist", 409));
-
     const generatedVerificationCode: string = generateVerificationCode();
+    const [hashedPassword] = encryptData(password);
 
-    let companyAuth = await CompanyAuth.findOne({ where: { email } });
+    const pendingCompany = await PendingCompanies.findOne({
+      where: { email },
+    });
 
-    const newCompanyAuth = {
+    const newPendingCompany = {
       email,
       name,
-      password,
-      phone: phone || null,
+      password: hashedPassword,
+      phone: phone ? encrypt(phone) : null,
       verificationCode: generatedVerificationCode,
       role,
       requestType: "register",
     };
 
-    if (companyAuth) {
-      await companyAuth.update(newCompanyAuth, { where: { email } });
+    if (pendingCompany) {
+      await pendingCompany.update(newPendingCompany, { where: { email } });
     } else {
-      await CompanyAuth.create(newCompanyAuth);
+      await PendingCompanies.create(newPendingCompany);
     }
+
     await sendVerificationEmail(email, generatedVerificationCode);
 
     res.status(201).json({
@@ -43,33 +43,55 @@ export const register = catchAsyncErrors(
   }
 );
 
+export const resendVerificationCode = catchAsyncErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+
+    const pendingCompany = await PendingCompanies.findOne({
+      where: { email },
+    });
+
+    if (!pendingCompany)
+      return next(new ErrorHandler("The email is not exist", 503));
+
+    const generatedVerificationCode: string = generateVerificationCode();
+
+    pendingCompany.verificationCode = generatedVerificationCode;
+    await pendingCompany.save();
+
+    await sendVerificationEmail(email, generatedVerificationCode);
+
+    res.status(201).json({
+      success: true,
+      message: "New verification code was made successfully",
+    });
+  }
+);
+
 export const verifyEmail = catchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {
-      verificationCode,
-      email,
-      requestType,
-      role: roleRequest,
-    } = req.body;
+    const { verificationCode, email, requestType } = req.body;
 
-    const company = await CompanyAuth.findOne({
+    const company = await PendingCompanies.findOne({
       where: { email, requestType },
     });
 
     if (!company)
-      return next(new ErrorHandler("The email does not exist", 404));
+      return next(new ErrorHandler("The email does not exist", 503));
 
-    if (company.verificationCode !== verificationCode)
+    const isVerificationCodeCorrect = await compareHashedData(
+      verificationCode,
+      company.verificationCode
+    );
+
+    if (!isVerificationCodeCorrect)
       return next(
         new ErrorHandler("The verification code is not correct", 400)
       );
 
     const { name, password, phone, role } = company;
 
-    if (role !== roleRequest)
-      return next(new ErrorHandler("Internal server error", 500));
-
-    const newCompany = await Company.create({
+    const newCompany = await Companies.create({
       name,
       password,
       phone: phone || null,
@@ -77,7 +99,7 @@ export const verifyEmail = catchAsyncErrors(
       role,
     });
 
-    await CompanyAuth.destroy({ where: { email } });
+    await PendingCompanies.destroy({ where: { email } });
 
     generateToken(
       newCompany,
@@ -92,14 +114,19 @@ export const verifyEmail = catchAsyncErrors(
 export const login = catchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
-    const company = await Company.findOne({ where: { email } });
+
+    const company = await Companies.findOne({ where: { email } });
 
     if (!company)
       return next(new ErrorHandler("This account is not exist", 404));
 
-    const correctPassword = await comparePassword(password, company.password);
+    const isPasswordCorrect = await compareHashedData(
+      password,
+      company.password
+    );
 
-    if (!correctPassword) return next(new ErrorHandler("Wrong password", 400));
+    if (!isPasswordCorrect)
+      return next(new ErrorHandler("Wrong password", 400));
 
     generateToken(
       company,
